@@ -5,7 +5,7 @@
     tags = [ "top-level" ]
 ) }}
 -- Final base SQL model
--- depends_on: {{ ref('da_sb_product_scd') }}
+-- depends_on: {{ ref('sb_product_da_scd') }}
 select
     _airbyte_unique_key,
     id,
@@ -39,10 +39,9 @@ select
     _airbyte_ab_id,
     _airbyte_emitted_at,
     {{ current_timestamp() }} as _airbyte_normalized_at,
-    _airbyte_da_sb_product_hashid
-from {{ ref('da_sb_product_scd') }}
--- da_sb_product from {{ source('sbase', '_airbyte_raw_da_sb_product') }}
+    _airbyte_sb_product_da_hashid
+from {{ ref('sb_product_da_scd') }}
+-- sb_product_da from {{ source('sbase', '_airbyte_raw_sb_product_da') }}
 where 1 = 1
 and _airbyte_active_row = 1
 {{ incremental_clause('_airbyte_emitted_at') }}
-

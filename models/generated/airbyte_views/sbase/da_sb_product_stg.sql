@@ -5,7 +5,7 @@
     tags = [ "top-level-intermediate" ]
 ) }}
 -- SQL model to build a hash column based on the values of this record
--- depends_on: {{ ref('da_sb_product_ab2') }}
+-- depends_on: {{ ref('sb_product_da_ab2') }}
 select
     {{ dbt_utils.surrogate_key([
         'id',
@@ -36,10 +36,9 @@ select
         'product_availability',
         'metafields_global_title_tag',
         'metafields_global_description_tag',
-    ]) }} as _airbyte_da_sb_product_hashid,
+    ]) }} as _airbyte_sb_product_da_hashid,
     tmp.*
-from {{ ref('da_sb_product_ab2') }} tmp
--- da_sb_product
+from {{ ref('sb_product_da_ab2') }} tmp
+-- sb_product_da
 where 1 = 1
 {{ incremental_clause('_airbyte_emitted_at') }}
-

@@ -5,7 +5,7 @@
     tags = [ "top-level-intermediate" ]
 ) }}
 -- SQL model to cast each column to its adequate SQL type converted from the JSON schema type
--- depends_on: {{ ref('da_sb_product_ab1') }}
+-- depends_on: {{ ref('sb_product_da_ab1') }}
 select
     cast(id as {{ dbt_utils.type_float() }}) as id,
     cast(tags as {{ dbt_utils.type_string() }}) as tags,
@@ -38,8 +38,7 @@ select
     _airbyte_ab_id,
     _airbyte_emitted_at,
     {{ current_timestamp() }} as _airbyte_normalized_at
-from {{ ref('da_sb_product_ab1') }}
--- da_sb_product
+from {{ ref('sb_product_da_ab1') }}
+-- sb_product_da
 where 1 = 1
 {{ incremental_clause('_airbyte_emitted_at') }}
-

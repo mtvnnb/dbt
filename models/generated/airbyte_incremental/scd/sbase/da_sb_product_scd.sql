@@ -2,18 +2,18 @@
     sort = ["_airbyte_active_row", "_airbyte_unique_key_scd", "_airbyte_emitted_at"],
     unique_key = "_airbyte_unique_key_scd",
     schema = "sbase",
-    post_hook = ['drop view _airbyte_sbase.da_sb_product_stg'],
+    post_hook = ['drop view _airbyte_sbase.sb_product_da_stg'],
     tags = [ "top-level" ]
 ) }}
--- depends_on: ref('da_sb_product_stg')
+-- depends_on: ref('sb_product_da_stg')
 with
 {% if is_incremental() %}
 new_data as (
     -- retrieve incremental "new" data
     select
         *
-    from {{ ref('da_sb_product_stg')  }}
-    -- da_sb_product from {{ source('sbase', '_airbyte_raw_da_sb_product') }}
+    from {{ ref('sb_product_da_stg')  }}
+    -- sb_product_da from {{ source('sbase', '_airbyte_raw_sb_product_da') }}
     where 1 = 1
     {{ incremental_clause('_airbyte_emitted_at') }}
 ),
@@ -32,7 +32,7 @@ empty_new_data as (
 previous_active_scd_data as (
     -- retrieve "incomplete old" data that needs to be updated with an end date because of new changes
     select
-        {{ star_intersect(ref('da_sb_product_stg'), this, from_alias='inc_data', intersect_alias='this_data') }}
+        {{ star_intersect(ref('sb_product_da_stg'), this, from_alias='inc_data', intersect_alias='this_data') }}
     from {{ this }} as this_data
     -- make a join with new_data using primary key to filter active data that need to be updated only
     join new_data_ids on this_data._airbyte_unique_key = new_data_ids._airbyte_unique_key
@@ -41,15 +41,15 @@ previous_active_scd_data as (
     where _airbyte_active_row = 1
 ),
 input_data as (
-    select {{ dbt_utils.star(ref('da_sb_product_stg')) }} from new_data
+    select {{ dbt_utils.star(ref('sb_product_da_stg')) }} from new_data
     union all
-    select {{ dbt_utils.star(ref('da_sb_product_stg')) }} from previous_active_scd_data
+    select {{ dbt_utils.star(ref('sb_product_da_stg')) }} from previous_active_scd_data
 ),
 {% else %}
 input_data as (
     select *
-    from {{ ref('da_sb_product_stg')  }}
-    -- da_sb_product from {{ source('sbase', '_airbyte_raw_da_sb_product') }}
+    from {{ ref('sb_product_da_stg')  }}
+    -- sb_product_da from {{ source('sbase', '_airbyte_raw_sb_product_da') }}
 ),
 {% endif %}
 scd_data as (
@@ -103,7 +103,7 @@ scd_data as (
       ) = 1 and _ab_cdc_deleted_at is null then 1 else 0 end as _airbyte_active_row,
       _airbyte_ab_id,
       _airbyte_emitted_at,
-      _airbyte_da_sb_product_hashid
+      _airbyte_sb_product_da_hashid
     from input_data
 ),
 dedup_data as (
@@ -159,6 +159,5 @@ select
     _airbyte_ab_id,
     _airbyte_emitted_at,
     {{ current_timestamp() }} as _airbyte_normalized_at,
-    _airbyte_da_sb_product_hashid
+    _airbyte_sb_product_da_hashid
 from dedup_data where _airbyte_row_num = 1
-
