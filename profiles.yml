@@ -1,0 +1,17 @@
+config:
+  partial_parse: true
+  printer_width: 120
+  send_anonymous_usage_stats: false
+  use_colors: true
+normalize:
+  outputs:
+    prod:
+      dbname: analytics
+      host: loc-house.cuvhpykbsfoi.us-west-2.redshift.amazonaws.com
+      pass: G82X1aAvWOllAYHUjmV
+      port: 5439
+      schema: public
+      threads: 32
+      type: redshift
+      user: dev
+  target: prod
