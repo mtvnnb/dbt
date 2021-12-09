@@ -6,4 +6,4 @@ sources:
     schema: false
     identifier: false
   tables:
-  - name: _airbyte_raw_da_sb_product
+  - name: _airbyte_raw_sb_product_da
